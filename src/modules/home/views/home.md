@@ -36,52 +36,58 @@ You are probly gonna want some backend data. There are a few options.
 
 If you have a drupal site, running the [services module], you can use your drupal site as a data-source for your cool little mobile version of your site, complete with a [cache manifest] to make it run at native-app speed, even on a crappy connection. You can modify modules/home/home.js to look like this:
 
-`define([
-  "share/jquery",
-  "share/open_ajax",
-  "share/microtemplate",
-  "share/data_drupal",
-  "share/text!./views/home.tpl"
-], function($, open_ajax, view, data, t_home) {
-  
-  /**
-   * called when user visits #home
-   * @param  {[type]} m original message
-   * @param  {[type]} o options - includes params, and lots of other info about state & transition
-   */
-  open_ajax.subscribe("home.enter", function(m,o){
-  	data.user(function(u){
-  	  console.log("yer user!", u);
-  	  $("section").html(view(t_home, {"user": u}));
-  	});
-  });
-});`
+Javascript:
+
+    define([
+      "share/jquery",
+      "share/open_ajax",
+      "share/microtemplate",
+      "share/data_drupal",
+      "share/text!./views/home.tpl"
+    ], function($, open_ajax, view, data, t_home) {
+      
+      /**
+       * called when user visits #home
+       * @param  {[type]} m original message
+       * @param  {[type]} o options - includes params, and lots of other info about state & transition
+       */
+      open_ajax.subscribe("home.enter", function(m,o){
+      	data.user(function(u){
+      	  console.log("yer user!", u);
+      	  $("section").html(view(t_home, {"user": u}));
+      	});
+      });
+    });
+
 
 Now, your template has access to the "user" variable, which is "undefined" or it"s your currently logged-in drupal user! See the "shared/data_drupal.js" file to get an idea of what other neat things you can do, and don't be scared to extend it however you see fit, I dare you! Make sure to customize config/drupal.js to set your service endpoint.
 
 ### Pollywog likes the Couches
 Yup, we do couchdb, direct (you can use pollywog in yer couchapp!)  You can modify modules/home/home.js to look like this:
 
-`define([
-  "share/jquery",
-  "share/open_ajax",
-  "share/microtemplate",
-  "share/data_couchdb",
-  "share/text!./views/home.tpl"
-], function($, open_ajax, view, data, t_home) {
-  
-  /**
-   * called when user visits #home
-   * @param  {[type]} m original message
-   * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
-   */
-  open_ajax.subscribe("home.enter", function(m,o){
-    data.info(function(i){
-      console.log("yer db!", i);
-      $("section").html(view(t_home, {"db_info": i}));
+Javascript:
+
+    define([
+      "share/jquery",
+      "share/open_ajax",
+      "share/microtemplate",
+      "share/data_couchdb",
+      "share/text!./views/home.tpl"
+    ], function($, open_ajax, view, data, t_home) {
+      
+      /**
+       * called when user visits #home
+       * @param  {[type]} m original message
+       * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
+       */
+      open_ajax.subscribe("home.enter", function(m,o){
+        data.info(function(i){
+          console.log("yer db!", i);
+          $("section").html(view(t_home, {"db_info": i}));
+        });
+      });
     });
-  });
-});`
+
 
 The API mimics [$.couch.db] but inserts success & error callbacks into options, to be more syntax-compatable with the other pollywog data-layers.  Make sure to customize config/couchdb.js to set your service endpoint.
 
@@ -89,50 +95,53 @@ The API mimics [$.couch.db] but inserts success & error callbacks into options, 
 
 Elasticsearch works pretty good all by itself (without indexing some other data source), and pollywog has a built-in data module for using it this way. This is a good choice if you need full-text searching and you don't need couchdb app-replication. You can modify modules/home/home.js to look like this:
 
-`define([
-  "share/jquery",
-  "share/open_ajax",
-  "share/microtemplate",
-  "share/data_elastic",
-  "share/text!./views/home.tpl"
-], function($, open_ajax, view, data, t_home) {
-  
-  /**
-   * called when user visits #home
-   * @param  {[type]} m original message
-   * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
-   */
-  open_ajax.subscribe("home.enter", function(m,o){
-    var query = {
-      "query": {
-        "bool": {
-          "must": [
-            {
-              "term": {
-                "title": "pirate"
-              }
-            },
-            {
-              "term": {
-                "type": "movie"
-              }
-            }
-          ]
-        }
-      },
-      "from": 0,
-      "size": 10,
-      "sort": [],
-      "facets": {}
-    };
+Javascript:
 
-    data.query(query, function(out){
-      console.log("ya got some!", out);
-      $("section").html(view(t_home, out));
+    define([
+      "share/jquery",
+      "share/open_ajax",
+      "share/microtemplate",
+      "share/data_elastic",
+      "share/text!./views/home.tpl"
+    ], function($, open_ajax, view, data, t_home) {
+      
+      /**
+       * called when user visits #home
+       * @param  {[type]} m original message
+       * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
+       */
+      open_ajax.subscribe("home.enter", function(m,o){
+        var query = {
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "term": {
+                    "title": "pirate"
+                  }
+                },
+                {
+                  "term": {
+                    "type": "movie"
+                  }
+                }
+              ]
+            }
+          },
+          "from": 0,
+          "size": 10,
+          "sort": [],
+          "facets": {}
+        };
+
+        data.query(query, function(out){
+          console.log("ya got some!", out);
+          $("section").html(view(t_home, out));
+        });
+
+      });
     });
 
-  });
-});`
 
 The API is pretty simple, it includes query() & some REST functions to do other stuff. There will probly be a more fleshed out API, later on. Either way, you should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
 

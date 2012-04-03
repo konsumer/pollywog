@@ -9,6 +9,8 @@ define(['share/util', 'share/showdown'], function(util, showdown, md5){
     // load the template - and be sure to cache the result.
     var fn, str;
 
+    console.log(key, t);
+
     try{
       if (window.sessionStorage[key] === undefined){
         str = t;
@@ -37,8 +39,8 @@ define(['share/util', 'share/showdown'], function(util, showdown, md5){
 
         window.sessionStorage[key] = fn.toString() + '; return anonymous(obj);';
       }else{
-         fn = new Function("obj", window.sessionStorage[key]);
-         console.log(fn);
+        console.log(key, 'from sessionStorage cache.');
+        fn = new Function("obj", window.sessionStorage[key]);
       }
 
       // Provide some basic currying to the user

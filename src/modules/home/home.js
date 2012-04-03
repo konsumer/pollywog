@@ -6,12 +6,12 @@ define([
   'share/jquery',
   'share/open_ajax',
   'share/microtemplate',
-  // 'share/highlight', // totes optional
+  'share/highlight', // totes optional
   
   'share/text!./views/home.md'
 
 
-], function($, open_ajax, view, v_home) {
+], function($, open_ajax, view, highlight, v_home) {
 
   /**
    * called when user visits #home
@@ -21,6 +21,7 @@ define([
   open_ajax.subscribe('home.enter', function(m,o){
     $('title').text("Home");
     $('section').html(view('views/home.md', v_home));
+    highlight();
   });
 
 });
