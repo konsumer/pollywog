@@ -4,18 +4,35 @@
 // John Resig - http://ejohn.org/ - MIT Licensed
 // pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support & localStorage caching
 define(['share/settings', 'share/util', 'share/showdown'], function(settings, util, showdown, md5){
+  // get/set cache using localstorage
+  var cache;
+
+  if (!settings.app.cache){
+    delete window.localStorage['tplcache'];
+    cache = {};
+  }else{
+    cache = window.localStorage['tplcache'];
+    cache = (cache) ? JSON.parse(cache) : {};
+    for (var i in cache){
+      cache[i] = new Function('obj', cache[i] + '; return anonymous(obj);');
+    }
+    window.onunload = function(){
+      var c = {};
+      for (var i in cache){
+        c[i] = cache[i].toString();
+      }
+      window.localStorage['tplcache'] = JSON.stringify(c);
+    };
+  }
+
+
   var tmpl = function(key, t, data){
     // Figure out if we're getting a template, or if we need to
     // load the template - and be sure to cache the result.
     var fn, str;
-
-    if (!settings.app.cache){
-      delete window.localStorage['tplcache.' + key];
-    }
-
     try{
-      if (window.localStorage['tplcache.' + key] === undefined ){
-        console.log(key, 'not from sessionStorage cache.');
+      if (cache[key] === undefined ){
+        console.log(key, 'not from cache.');
         str = t;
         if (key.substr(-2) == 'md'){
           str = showdown.makeHtml(t);
@@ -40,10 +57,10 @@ define(['share/settings', 'share/util', 'share/showdown'], function(settings, ut
           // Introduce the data as local variables using with(){}
           "');}return p.join('').replace(/†/g,\"\\n\");");
 
-        window.localStorage['tplcache.' + key] = fn.toString() + '; return anonymous(obj);';
+        cache[key] = fn;
       }else{
-        console.log(key, 'from sessionStorage cache.');
-        fn = new Function("obj", window.localStorage['tplcache.' + key]);
+        console.log(key, 'from cache.');
+        fn = cache[key];
       }
 
       // Provide some basic currying to the user
