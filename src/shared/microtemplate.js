@@ -2,7 +2,7 @@
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
-// pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support & sessionStorage caching
+// pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support & localStorage caching
 define(['share/util', 'share/showdown'], function(util, showdown, md5){
   var tmpl = function(key, t, data){
     // Figure out if we're getting a template, or if we need to
@@ -12,7 +12,7 @@ define(['share/util', 'share/showdown'], function(util, showdown, md5){
     console.log(key, t);
 
     try{
-      if (window.sessionStorage[key] === undefined){
+      if (window.localStorage['tplcache.' + key] === undefined){
         str = t;
         if (key.substr(-2) == 'md'){
           str = showdown.makeHtml(t);
@@ -37,10 +37,10 @@ define(['share/util', 'share/showdown'], function(util, showdown, md5){
           // Introduce the data as local variables using with(){}
           "');}return p.join('').replace(/†/g,\"\\n\");");
 
-        window.sessionStorage[key] = fn.toString() + '; return anonymous(obj);';
+        window.localStorage['tplcache.' + key] = fn.toString() + '; return anonymous(obj);';
       }else{
         console.log(key, 'from sessionStorage cache.');
-        fn = new Function("obj", window.sessionStorage[key]);
+        fn = new Function("obj", window.localStorage['tplcache.' + key]);
       }
 
       // Provide some basic currying to the user
