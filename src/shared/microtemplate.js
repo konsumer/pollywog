@@ -2,18 +2,26 @@
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
-// pollywog adds html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support
-define(['share/util'], function(util){
-  var tmpl = function(str, data){
+// pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support
+define(['share/util', 'share/showdown'], function(util, showdown, md5){
+  var cache={};
+
+  var tmpl = function(key, t, data){
     // Figure out if we're getting a template, or if we need to
     // load the template - and be sure to cache the result.
-    var fn;
-
+    var fn, str;
+    
     try{
+      if (cache[key] === undefined){
+        str = t;
+        if (key.substr(-2) == 'md'){
+          str = showdown.makeHtml(t);
+        }
+      }
 
       // Generate a reusable function that will serve as a template
       // generator (and which will be cached).
-      fn = new Function("obj",
+      fn = cache[key] || new Function("obj",
         "var p=[],print=function(){p.push.apply(p,arguments);};" +
         "with(obj){p.push('" +
         str
@@ -33,15 +41,20 @@ define(['share/util'], function(util){
         // Introduce the data as local variables using with(){}
         "');}return p.join('').replace(/†/g,\"\\n\");");
 
+      cache[key] = fn;
+
       // Provide some basic currying to the user
       return data ? fn( data ) : fn;
     }catch(e){
       var err = {
         message: e.message,
         input: data,
-        error:e,
-        template: str.split("\n")
+        error:e
       };
+
+      if (str){
+        err.template = str.split("\n");
+      }
 
       if (fn !== undefined){
         err.template_function = fn.toString().split("\n");

@@ -6,9 +6,12 @@ define([
   'share/jquery',
   'share/open_ajax',
   'share/microtemplate',
-  'share/prettify', // totes optional.
-  'share/text!./views/home.tpl'
-], function($, open_ajax, view, prettify, t_home) {
+  // 'share/highlight', // totes optional
+  
+  'share/text!./views/home.md'
+
+
+], function($, open_ajax, view, v_home) {
 
   /**
    * called when user visits #home
@@ -17,10 +20,7 @@ define([
    */
   open_ajax.subscribe('home.enter', function(m,o){
     $('title').text("Home");
-    $('section').html(view(t_home));
-    
-    // optional
-    prettify.prettyPrint();
+    $('section').html(view('views/home.md', v_home));
   });
 
 });
