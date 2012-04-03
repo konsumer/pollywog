@@ -113,7 +113,7 @@
 <ul>
   <li><a href="http://requirejs.org/docs/">RequireJS</a> does all the loading of code &amp; view templates, and manages dependencies when building the minified code, or just rockin' it all uncompressed.</li>
   <li><a href="http://jquery.org">jQuery</a>: you know what this is, right?</li>
-  <li>I'm using a modified <a href="http://ejohn.org/blog/javascript-micro-templating/">microtemplate</a> for the view-layer, that does some nice text replacement (single-quotes &amp; html-purifying) and has some cute error-handling, which is just a smidge more useful than crappy eval-anon generic errors.</li>
+  <li>I'm using a modified <a href="http://ejohn.org/blog/javascript-micro-templating/">microtemplate</a> for the view-layer, that does some nice text replacement (single-quotes &amp; html-purifying) and has some cute error-handling, which is just a smidge more useful than crappy eval-anon generic errors. I also made 2 changes that utilize requirejs, better: no cache (templates are already cached in requirejs) and disabled inline script-templates (better to laod from seperate files.)</li>
   <li><a href="http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification">Open-ajax</a> is cool for cross-module messaging. I use it in the state_manager, and it's pretty handy for other things, too.</li>
 </ul>
 
