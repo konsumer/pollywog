@@ -1,14 +1,26 @@
-<h1>pollywog saiz "o hai!"</h1>
+<h1>teh pollywog saiz "o hai!"</h1>
 <p>This is a pollywog app. If you are seeing this page, you probly gotta set some stuff up.</p>
+
+<h2 title="why you might want to use pollywog">Wot? Another framework? Sounds dumb.</h2>
+<p>Pollywog saves me time when I want a 1-page app, that loads quick, manages dependencies (even in minification,) has pre-made bindings for the data-lalyers I use most, keeps my code organized, and provides a view layer.  It's not MVC, but it's kind of similar, and it's not really doing all that much but adding a few little helpers. All the parts are optional, and you can leave out whatever you like (although without <a href="http://requirejs.org/docs/">RequireJS</a>, <a href="http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification">Open-ajax</a>, the state_manager, the templating engine, and the data-helpers, there really isn't anything left.)</p>
+
 
 <h2 title="theming pollywog">The Little Guy's Adventure Begins with a Look</h2>
 <p>This text is produced by the home module, in modules/home/home.js. To edit this view, open modules/home/views/home.tpl. The CSS you are seeing is Boilerplate (reset &amp; media queries) in /main.css with overrides from themes/default/style.css</p>
+
+<h2 title="how modules work">Pollywog Loves Hash URLs</h2>
+<p>You can attach all of your code to hashes. There are 2 types.  The first is a normal hash, and will get inserted into your history. The other are actions or overlays that should not be in your history. The difference between the 2 is an underscore at the beginning. This page is an example that is hooked to the #home hash. See the source of modules/home/home.js to see how it works. The parent or home hash is defined in main.js with a line like this:</p>
+
+<pre class="prettyprint"><code class="language-javascript">state('home');</code></pre>
+
+<p>This means that if there is not an existing primary hash (no underscore at beginning) then trigger the home hash, which is defined in modules/home/home.js. To add more modules that respond to hash-changes, just add them in the top of main.js, the same way 'modules/home/home.js' is added.</p>
+
 
 <h2 title="data">Form Over Fashion</h2>
 <p>You are probly gonna want some backend data. There are a few options.</p>
 
 <h3 title="using drupal services">Chillaxin' on the Drupal-pad</h3>
-<p>If you have a drupal site, running the <a href="http://drupal.org/project/services">services module</a>, you can modify modules/home/home.js to look like this:</p>
+<p>If you have a drupal site, running the <a href="http://drupal.org/project/services">services module</a>, you can use your drupal site as a data-source for your cool litlte mobile version. You can modify modules/home/home.js to look like this:</p>
 
 <pre class="prettyprint"><code class="language-javascript">define([
   "share/jquery",
@@ -109,11 +121,11 @@
 <p>The API is pretty simple, it includes query() &amp; some REST functions to do other stuff. There will probly be a more fleshed out API, later on. Either way, you should probly go <a href="http://www.elasticsearch.org/guide/">read about elasticsearch</a>. Make sure to customize config/elastic.js to set your service endpoint.</p>
 
 <h2 title="libraries used in pollywog">Tell Me Your Big Secrets, Little Frog</h2>
-<p>Pollywog is built on the backs of tiny giants. In order to be really super-effective with it, it might help to ready about those giants:</p>
+<p>Pollywog is built on the backs of tiny giants. In order to be really super-effective with it, it might help to read about those giants:</p>
 <ul>
   <li><a href="http://requirejs.org/docs/">RequireJS</a> does all the loading of code &amp; view templates, and manages dependencies when building the minified code, or just rockin' it all uncompressed.</li>
   <li><a href="http://jquery.org">jQuery</a>: you know what this is, right?</li>
-  <li>I'm using a modified <a href="http://ejohn.org/blog/javascript-micro-templating/">microtemplate</a> for the view-layer, that does some nice text replacement (single-quotes &amp; html-purifying) and has some cute error-handling, which is just a smidge more useful than crappy eval-anon generic errors. I also made 2 changes that utilize requirejs, better: no cache (templates are already cached in requirejs) and disabled inline script-templates (better to laod from seperate files.)</li>
-  <li><a href="http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification">Open-ajax</a> is cool for cross-module messaging. I use it in the state_manager, and it's pretty handy for other things, too.</li>
+  <li>I'm using a modified <a href="http://ejohn.org/blog/javascript-micro-templating/">microtemplate</a> for the view-layer, that does some nice text replacement (single-quotes &amp; html-purifying) and has some cute error-handling, which is just a smidge more useful than crappy eval-anon generic errors. I also made 2 changes that utilize requirejs, better: no cache (templates are already cached in requirejs) and disabled inline script-templates (better to load from seperate files.)</li>
+  <li><a href="http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification">Open-ajax</a> is cool for cross-module messaging. I use it in the state_manager, and it's pretty handy for other things, too. Basically, any time you want to tell all the other modules that something happened, publish a message. You can see how to do this in the shared/state_manager.js file.</li>
 </ul>
 
