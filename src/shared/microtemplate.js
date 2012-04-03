@@ -3,16 +3,19 @@
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
 // pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support & localStorage caching
-define(['share/util', 'share/showdown'], function(util, showdown, md5){
+define(['share/settings', 'share/util', 'share/showdown'], function(settings, util, showdown, md5){
   var tmpl = function(key, t, data){
     // Figure out if we're getting a template, or if we need to
     // load the template - and be sure to cache the result.
     var fn, str;
 
-    console.log(key, t);
+    if (!settings.app.cache){
+      delete window.localStorage['tplcache.' + key];
+    }
 
     try{
-      if (window.localStorage['tplcache.' + key] === undefined){
+      if (window.localStorage['tplcache.' + key] === undefined ){
+        console.log(key, 'not from sessionStorage cache.');
         str = t;
         if (key.substr(-2) == 'md'){
           str = showdown.makeHtml(t);

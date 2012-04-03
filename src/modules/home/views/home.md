@@ -23,7 +23,9 @@ This text is produced by the home module, in modules/home/home.js. To edit this 
 
 You can attach all of your code to hashes. There are 2 types.  The first is a normal hash, and will get inserted into your history. The other are actions or overlays that should not be in your history. The difference between the 2 is an underscore at the beginning. This page is an example that is hooked to the #home hash. See the source of modules/home/home.js to see how it works. The parent or home hash is defined in main.js with a line like this:
 
-`state('home');`
+Javascript:
+
+    state("home");
 
 This means that if there is not an existing primary hash (no underscore at beginning) then trigger the home hash, which is defined in modules/home/home.js. To add more modules that respond to hash-changes, just add them in the top of main.js, the same way 'modules/home/home.js' is added.
 
