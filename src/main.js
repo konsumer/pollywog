@@ -17,6 +17,9 @@ require({
   'share/jquery',
   'share/os',
   'share/settings',
+
+  // for testing in console
+  'share/data_drupal',
   
   // load target modules here, no need to add them to your function callback, below.
   'modules/home/home.js'
