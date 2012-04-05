@@ -45,6 +45,10 @@ h3 {
   font-size: 200%;
 }
 
+dt {
+  font-weight: bold;
+}
+
 /** highlight.js styles **/
 
 /*

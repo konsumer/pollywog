@@ -6,6 +6,10 @@
 [Elasticsearch]: http://www.elasticsearch.org/guide/
 [jQuery]: http://jquery.org
 [microtemplate]: http://ejohn.org/blog/javascript-micro-templating/
+[services page]: http://127.0.0.1?q=/admin/structure/services
+[your fancy mobile app]: http://127.0.0.1/mobile/
+[Resources]: http://127.0.0.1?q=/admin/structure/services/list/rest_api/resources
+[Services Tools]: http://drupal.org/project/services_tools
 
 # teh pollywog saiz "o hai!"
 
@@ -13,7 +17,9 @@ This is a pollywog app. If you are seeing this page, you probly gotta set some s
 
 ## Wot? Another framework? Sounds dumb.
 
-Pollywog saves me time when I want a 1-page app, that loads quick, manages dependencies (even in minification,) has pre-made bindings for the data-lalyers I use most, keeps my code organized, and provides a view layer.  It's not MVC, but it's kind of similar, and it's not really doing all that much but adding a few little helpers. All the parts are optional, and you can leave out whatever you like (although without [RequireJS], [Open-ajax], the state_manager, the templating engine, and the data-helpers, there really isn't anything left.)
+Pollywog is made for getting cool stuff done, without having to do a bunch of stuff, in a way that is maintainable.
+
+Pollywog saves me time when I want a 1-page app, that loads quick, manages dependencies (even in minification,) has pre-made bindings for the data-layers I use most, keeps my code organized, and provides a view layer.  It's not MVC, but it's kind of similar, and it's not really doing all that much but adding a few little helpers. All the parts are optional, and you can leave out whatever you like (although without [RequireJS], [Open-ajax], the state_manager, the templating engine, and the data-helpers, there really isn't anything left.)
 
 ## The Little Guy's Adventure Begins with a Look
 
@@ -41,28 +47,51 @@ If you have a drupal site, running the [services module], you can use your drupa
 Javascript:
 
     define([
-      "share/jquery",
-      "share/open_ajax",
-      "share/microtemplate",
-      "share/data_drupal",
-      "share/text!./views/home.tpl"
-    ], function($, open_ajax, view, data, t_home) {
-      
+      'share/jquery',
+      'share/open_ajax',
+      'share/microtemplate',
+      'share/data_drupal',
+
+      'share/text!./views/home.htm'
+
+
+    ], function($, open_ajax, view, data, v_home) {
       /**
        * called when user visits #home
        * @param  {[type]} m original message
        * @param  {[type]} o options - includes params, and lots of other info about state & transition
        */
-      open_ajax.subscribe("home.enter", function(m,o){
-      	data.user(function(u){
-      	  console.log("yer user!", u);
-      	  $("section").html(view(t_home, {"user": u}));
-      	});
+      open_ajax.subscribe('home.enter', function(m,o){
+        $('title').text("Home");
+        data.drupal.user.index(function(users){
+          // first in array is you, rest are those you can get info about.
+          $("section").html(view('home/home.htm', v_home, {user:users[0]}));
+        });
       });
     });
 
+Make your /modules/home/views/home.htm look like this:
 
-Now, your template has access to the "user" variable, which is "undefined" or it"s your currently logged-in drupal user! See the "shared/data_drupal.js" file to get an idea of what other neat things you can do, and don't be scared to extend it however you see fit, I dare you! Make sure to customize config/drupal.js to set your service endpoint.
+HTML
+
+    <% if (user){ %>
+      <h1>Oh hai <%= user.name %>! what’s up?</h1>
+      <p>I know all kinds a stuff 'bout you, (non-gender-specific) dude:</p>
+      <dl>
+      <% for (u in user) { %>
+        <dt><%= u %></dt>
+        <dd><%= user[u] %></dt>
+      <% } %>
+    </dl>
+    <% }else{ %>
+      <h1>Not logged in. Go <a href="/user/login">here</a> to fix that.</h1>
+    <% } %>
+
+
+Go setup a REST service endpoint on [services page]. Make the path to endpoint "rest_api". Turn on "Session authentication". Under the [Resources] tab, make sure at least user.index is turned on. Put this awesome Pollywog app in the webroot of yer webserver, in a folder called "mobile". Now, go to [your fancy mobile app]. Sweet.
+
+The drupal data-layer is built automatically from the services module, and matches the naming: user.login, . See the top of shared/data_drupal.js to see how to add/remove services that differ from what I had on my dev server. You can also install [Services Tools] on your drupal site, in order to fill in the functions directly from your service, without any extra work! Make sure to customize config/drupal.js to set your service endpoint.
+
 
 ### Pollywog likes the Couches
 Yup, we do couchdb, direct (you can use pollywog in yer couchapp!)  You can modify modules/home/home.js to look like this:
@@ -90,6 +119,21 @@ Javascript:
       });
     });
 
+Make your template look like this:
+
+HTML
+
+    <% if (db_info): %>
+      <h1>Oh hai! Yer DB is all Couch-ee</h1>
+      <dl>
+      <% for (d in db_info){ %>
+        <dt><%= d %></dt>
+        <dd><%= JSON.stringify(db_info[d]) %></dd>
+      <% } %>
+      </dl>
+    <% }else{ %>
+      <h1>No couch to sit on! Is it running? See <a href="http://127.0.0.1:5984/_utils/">here</a>.</h1>
+    <% } %>
 
 The API mimics [$.couch.db] but inserts success & error callbacks into options, to be more syntax-compatable with the other pollywog data-layers.  Make sure to customize config/couchdb.js to set your service endpoint.
 

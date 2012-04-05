@@ -1,100 +1,95 @@
 // use drupal services, easily
 
-define(['share/jquery','share/settings'], function($, settings){
-  var user;
+define(['share/settings', 'share/data_generic', 'share/open_ajax'], function(settings, data, open_ajax){
+  var services = new data(settings.drupal.endpoint);
 
-  var services = {
-    // your services REST endpoint - in phonegap, this will be the remote URL
-    // configure it in config/data.js
-    'endpoint' : settings.drupal.endpoint,
+  // attempt to get definition from http://drupal.org/project/services_tools endpoint
+  
+  services.setup = function(callback, reload){
+    // use require's cache/return to get a nice local copy
+    // var services = require('share/data_drupal');
 
-    'request': function(url, type, success, error, data){
-      success = success || function(data){ console.log('ajax success:', data); };
-      error = error || function(jqXHR, textStatus, errorThrown){ console.error('ajax error:', jqXHR); };
-      var options={
-        contentType: 'application/json',
-        url: services.endpoint + url + '.json',
-        type: type,
-        success: success,
-        error:error
-      };
-      if (data){
-        options.data = JSON.stringify(data);
-      }
-      return $.ajax(options);
-    },
-    
-    'get': function(url, success, error){
-      return services.request(url, 'GET', success, error);
-    },
-    
-    'post': function(url, data, success, error){
-      return services.request(url, 'POST', success, error, data);
-    },
-    
-    'put': function(url, data, success, error){
-      return services.request(url, 'PUT', success, error, data);
-    },
-    
-    'delete': function(url, success, error){
-      return services.request(url, 'DELETE', success, error);
-    },
-
-    /**
-     * load node
-     * @param  {Integer}   nid     node ID
-     * @param  {Function} callback function to be called on node
-     */
-    node: function(nid, callback){
-      return services.get('node/' + nid, callback);
-    },
-
-    /**
-     * get currently logged-in user from server
-     * @param  {Function} callback [called on user-object, or FALSE, if no user loaded
-     */
-    user: function(){
-      callback = callback || function(user){ console.log('current user', user); };
-      if (user){
-        callback(user);
-      }else{
-        data.get('user', function(users){
-          if (users.length){
-            user = users[0];
-            callback(user);
-          }else{
-            callback(false);
-          }
-        });
-      }
-    },
-
-    /**
-     * logout of Drupal
-     * @param  {Function} callback [description]
-     */
-    user_logout: function(){
-      user = undefined;
-      return data.post('user/logout',{}, callback);
-    },
-
-    /**
-     * login to Drupal
-     * @param  {String}   user     drupal username
-     * @param  {String}   password drupal password
-     * @param  {Function} callback function to be called on user object
-     */
-    user_login: function(user, password, callback){
-      callback = callback || function(user){ console.log('current user', user); };
-      return services.post('user/login', {username: user, password:password}, function(u){
-        user = u;
-        callback(u);
-      });
+    // already setup
+    if (services.drupal && !reload){
+      callback();
     }
+
+    var method_map = {
+      'retrieve':'GET',
+      'update':'PUT',
+      'delete':'DELETE',
+      'index':'GET',
+      'create':'POST',
+      'actions':'POST',
+      'targeted_actions':'POST',
+      'relationships':'GET'
+    };
+
+    services.get('definition.json', function(def){
+      if (def.status && def.status == 404){
+        console.log('You must enable services_tools/service_definition for a map of functions. You will need to call services, direct with data.get, data.post, etc.');
+        callback();
+      }else{
+        services.drupal = {};
+        var module, resource, r, args, a, arg, data, ua, param;
+        if (def.resource_details){
+          for (module in def.resource_details){
+            services.drupal[module]={};
+            resource = def.resource_details[module];
+            for (r in resource){
+              console.log(module + '.' + r, resource[r]);
+              fn='';
+              if (r != 'actions' && r != 'relationships' && r != 'targeted_actions'){
+                args=[];
+                data=undefined;
+                ua='';
+                param=[];
+                for(a in resource[r].args){
+                  arg = resource[r].args[a];
+                  args.push(arg.name);
+                  if (arg.source == 'data'){
+                    data = arg.name;
+                  }
+                  if (arg.source.path){
+                    ua += "/' + "+ arg.name + " + '";
+                  }
+                  if (arg.source.param){
+                    param.push(arg.source.param);
+                  }
+                }
+                fn = "  var services=require('share/data_drupal');\n";
+                fn += "  var url='"+module+ua+".json';\n";
+                fn += "  var type='"+method_map[r]+"';\n";
+
+                if (!data){
+                  if (args.length && ua === ''){
+                    fn += "  var data={};\n";
+                    fn += "  var fa = arguments;\n";
+                    fn += "  ['" + param.join("', '") + "'].forEach(function(a, i){  if (fa[i]) { data[a] = fa[i]; } });\n";
+                    fn += "  services.request(url, type, success, error, data);\n";
+                  }else{
+                    fn += "  services.request(url, type, success, error);";
+                  }
+                }else{
+                  fn += "  services.request(url, type, success, error, "+data+");";
+                }
+
+                
+              }
+
+              args.push('success');
+              args.push('error');
+              console.log(module + '.' + r, '= function('+args.join(', ')+'){\n'+fn+'\n}');
+
+
+            }
+          }
+          callback();
+        }else{
+          console.log("Your version of services_tools doesn't include extended info. see http://drupal.org/node/1515614");
+        }
+      }
+    });
   };
-
-  // pre-load user data, if they are already logged-in
-  services.user();
-
   return services;
 });

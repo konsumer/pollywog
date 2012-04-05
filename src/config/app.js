@@ -2,5 +2,5 @@
  * config for top-level application
  */
 define([], {
-	"cache": true // enable template caching?
+	"cache": false // enable template caching?
 });
