@@ -18,7 +18,7 @@ define(['share/settings', 'share/data_generic', 'share/open_ajax'], function(set
 
       }
     }, function(){
-      callback("You need to install the services_introspect module, make sure you have the correct permissions, and ensure that config/drupal.js is setup.");
+      callback("You need to install the services_introspect module: http://drupal.org/project/services_introspect, also make sure you have the correct permissions and ensure that config/drupal.js is setup.");
     });
   };
 
