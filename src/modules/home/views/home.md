@@ -51,28 +51,27 @@ Javascript:
       'share/open_ajax',
       'share/microtemplate',
       'share/data_drupal',
+      'share/spin',
 
-      'share/text!./views/home.htm'
+      'share/text!./views/drupal.htm'
 
 
-    ], function($, open_ajax, view, data, v_home) {
-      /**
-       * called when user visits #home
-       * @param  {[type]} m original message
-       * @param  {[type]} o options - includes params, and lots of other info about state & transition
-       */
-      open_ajax.subscribe('home.enter', function(m,o){
-        $('title').text("Home");
+    ], function($, open_ajax, view, data, spinner, v_drupal) {
+      open_ajax.subscribe('data_drupal.enter', function(m,o){
+        $('title').text("Drupal Test");
+        spinner.spin($('section').html('').get(0));
         data.setup(function(err){
           if (!err){
-            data.drupal('user.index')(function(users){
-              $('section').html(view('home/home.htm', v_home, {user:users[0]}));
+            // first user is you, others are those you have access to
+            data.drupal('user.index', {pagesize:1}, function(users){
+              $('section').html(view('data_tests/drupal.htm', v_drupal, {user:users[0]}));
             });
           }else{
             console.error(err);
           }
         });
       });
+
     });
 
 Make your /modules/home/views/home.htm look like this:

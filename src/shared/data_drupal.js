@@ -19,60 +19,42 @@ define(['share/settings', 'share/data_generic', 'share/open_ajax'], function(set
     }
   };
 
-  services.getFunction = function(name){
-    try{
-      var info = services.resources[name];
-      var fn = "";
-      var args=['success', 'error'];
-      var a;
-      var u=[];
-      var p=[];
+  services.drupal = function(name, params, success, error){
+    var i; // generic iterator
+    var info = services.resources[name];
+    console.log('service', info);
+    var url = info.url;
+    var data = {};
 
-      // only 1 data-param handled
-      if (info.args['data'].length !== undefined && info.args['data'].length > 0){
-        args.push('data');
+    // only know how to deal with one data-item, this will leave the last set
+    for (i in info.args['data']){
+      if (params[i] !== undefined){
+        data = params[i];
       }
-      
-      for (a in info.args.path){
-        args.push(a);
-        u.push(a);
-      }
-      
-      if (u.length > 0){
-        info.url += "'+" + u.join("+ '/' +") + "+'";
-      }
-      info.url += '.json';
-
-      for (a in info.args.param){
-        args.push(a);
-        p.push(a);
-      }
-
-      fn += "  var url='" + info.url + "';\n";
-      fn += "  var data;\n";
-      fn += "  if (!data) data={" + p.map(function(i){ return i + ':' + i; }).join(',') + "};\n";
-      fn += "  for (d in data){\n";
-      fn += "    if (data[d]===undefined){\n";
-      fn += "      delete(data[d]);\n";
-      fn += "    }else if(typeof(data[d]) == 'function'){\n";
-      fn += "      if (success) { error=data[d]; }else{ success=data[d]; }\n";
-      fn += "      delete(data[d]);\n";
-      fn += "    }\n";
-      fn += "  }\n";
-      fn += "  require('share/data_drupal').request(url, '" + info.method + "', success, error, data);\n";
-      
-      return [args, fn];
-    }catch(e){
-      // services not setup
-      console.error('service error', name, e);
     }
-  };
 
-  services.drupal = function(name){
-    fn = services.getFunction(name);
-    return (new Function(fn[0].join(','), fn[1]));
+    for (i in info.args['path']){
+      if (params[i] !== undefined){
+         url += '/' + params[i];
+         delete params[i];
+      }
+    }
+
+    url += '.json';
+
+    var p=[];
+    for (i in info.args['param']){
+      if (params[i] !== undefined){
+        p.push(encodeURI(i) + '=' + encodeURI(params[i]));
+      }
+    }
+
+    if (p.length > 0){
+      url += '?' + p.join('&');
+    }
+
+    services.request(url, info.method, success, error, data);
   };
 
   return services;
 });
-
