@@ -1,0 +1,12 @@
+<% if (user){ %>
+  <h1>Oh hai <%= user.name %>! what’s up?</h1>
+  <p>I know all kinds a stuff 'bout you, (non-gender-specific) dude:</p>
+  <dl>
+  <% for (u in user) { %>
+    <dt><%= u %></dt>
+    <dd><%= user[u] %></dt>
+  <% } %>
+</dl>
+<% }else{ %>
+  <h1>Not logged in. Go <a href="/user/login">here</a> to fix that.</h1>
+<% } %>
