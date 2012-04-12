@@ -8,7 +8,7 @@ define(['share/jquery'], function($){
     this.endpoint_prefix = endpoint_prefix;
   };
 
-  data.prototype.request = function(url, type, success, error, data){
+  data.prototype.request = function(url, type, success, error, data, ajaxSettings){
     // re-arrange params, if data is really the success callback (like for GETs)
     if (typeof(data)=='function'){
       success=data;
@@ -31,6 +31,7 @@ define(['share/jquery'], function($){
         options.data = JSON.stringify(data);
       }
     }
+    options = $.extend(options, ajaxSettings);
     return $.ajax(options);
   };
 

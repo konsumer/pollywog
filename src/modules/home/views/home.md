@@ -10,6 +10,7 @@
 [your fancy mobile app]: http://127.0.0.1/mobile/
 [Resources]: http://127.0.0.1?q=/admin/structure/services/list/rest_api/resources
 [Services Tools]: http://drupal.org/project/services_tools
+[Services Introspect]: http://drupal.org/project/services_introspect
 
 # teh pollywog saiz "o hai!"
 
@@ -42,39 +43,41 @@ You are probly gonna want some backend data. There are a few options.
 
 ### Chillaxin' on the Drupal-pad
 
-If you have a drupal site, running the [services module], you can use your drupal site as a data-source for your cool little mobile version of your site, complete with a [cache manifest] to make it run at native-app speed, even on a crappy connection. You can modify modules/home/home.js to look like this:
+If you have a drupal site, running the [services module], you can use your drupal site as a data-source for a cool little mobile version of your site, complete with a [cache manifest] to make it run at native-app speed, even on a crappy connection. You can modify modules/home/home.js to look like this:
 
 Javascript:
 
     define([
-      'share/jquery',
-      'share/open_ajax',
-      'share/microtemplate',
-      'share/data_drupal',
-      'share/spin',
-
-      'share/text!./views/drupal.htm'
-
-
-    ], function($, open_ajax, view, data, spinner, v_drupal) {
-      open_ajax.subscribe('data_drupal.enter', function(m,o){
-        $('title').text("Drupal Test");
-        spinner.spin($('section').html('').get(0));
+      "share/jquery",
+      "share/open_ajax",
+      "share/microtemplate",
+      "share/data_drupal",
+      "share/spin",
+      "share/text!./views/home.htm"
+    ], function($, open_ajax, view, data, spinner, v_home) {
+      
+      /**
+       * called when user visits #home
+       * @param  {[type]} m original message
+       * @param  {[type]} o options - includes params, and lots of other info about state & transition
+       */
+      open_ajax.subscribe("home.enter", function(m,o){
+        spinner.spin($("section").html("").get(0));
+        $("title").text("Drupal Works!");
         data.setup(function(err){
           if (!err){
             // first user is you, others are those you have access to
-            data.drupal('user.index', {pagesize:1}, function(users){
-              $('section').html(view('data_tests/drupal.htm', v_drupal, {user:users[0]}));
+            data.drupal("user.index", {"pagesize" : 1}, function(users){
+              $("section").html(view("home/home.htm", v_home, {"user" : users[0]}));
             });
           }else{
             console.error(err);
           }
         });
       });
-
     });
 
-Make your /modules/home/views/home.htm look like this:
+Make your template (modules/home/views/home.htm) look like this:
 
 HTML
 
@@ -91,9 +94,9 @@ HTML
       <h1>Not logged in. Go <a href="/user/login">here</a> to fix that.</h1>
     <% } %>
 
-Go setup a REST service endpoint on [services page]. Make the path to endpoint "rest_api". Turn on "Session authentication". Under the [Resources] tab, make sure at least user.index is turned on. Put this awesome Pollywog app in the webroot of yer webserver, in a folder called "mobile". Now, go to [your fancy mobile app]. Sweet.
+Go setup a REST service endpoint on [services page]. Make the path to endpoint "rest_api" (change this in config/drupal.js.) Turn on "Session authentication". Under the [Resources] tab, make sure at least user.index is turned on. Put this awesome Pollywog app in the webroot of yer webserver, in a folder called "mobile". Now, go to [your fancy mobile app]. Sweet.
 
-The drupal data-layer is built automatically from the services module, and matches the naming: user.login, . See the top of shared/data_drupal.js to see how to add/remove services that differ from what I had on my dev server. You can also install [Services Tools] on your drupal site, in order to fill in the functions directly from your service, without any extra work! Make sure to customize config/drupal.js to set your service endpoint.
+The Drupl data-layer uses [Services Introspect] to get info about the installed services. You can use [Services Tools] project, which includes the Services Definition module to find out more about your services and get params, etc. 
 
 
 ### Pollywog likes the Couches
@@ -106,8 +109,8 @@ Javascript:
       "share/open_ajax",
       "share/microtemplate",
       "share/data_couchdb",
-      "share/text!./views/home.tpl"
-    ], function($, open_ajax, view, data, t_home) {
+      "share/text!./views/home.htm"
+    ], function($, open_ajax, view, data, v_home) {
       
       /**
        * called when user visits #home
@@ -117,12 +120,12 @@ Javascript:
       open_ajax.subscribe("home.enter", function(m,o){
         data.info(function(i){
           console.log("yer db!", i);
-          $("section").html(view(t_home, {"db_info": i}));
+          $("section").html(view(v_home, {"db_info": i}));
         });
       });
     });
 
-Make your template look like this:
+Make your template (modules/home/views/home.htm) look like this:
 
 HTML
 
@@ -194,7 +197,7 @@ Javascript:
 
 The API is pretty simple, it includes query() & some REST functions to do other stuff. There will probly be a more fleshed out API, later on. Either way, you should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
 
-## Tell Me Your Big Secrets, Little Frog
+## Show me your guts, little frog
 
 Pollywog is built on the backs of tiny giants. In order to be really super-effective with it, it might help to read about those giants:
 

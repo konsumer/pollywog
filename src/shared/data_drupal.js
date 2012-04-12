@@ -1,10 +1,13 @@
 // use drupal services, easily
 
-define(['share/settings', 'share/data_generic', 'share/open_ajax'], function(settings, data, open_ajax){
+define(['share/settings', 'share/data_generic'], function(settings, data){
   var services = new data(settings.drupal.endpoint);
 
-  var functionCache={};
-
+  /**
+   * Gets initial info from services_introspect for future callbacks
+   * @param  {Function} callback    On error, first param is string of message
+   * @param  {Boolean}   forceReload use cacche or force-reload. False, by default.
+   */
   services.setup = function(callback, forceReload){
     callback = callback || function(err){};
     if (services.resources !== undefined && !forceReload){
@@ -19,6 +22,13 @@ define(['share/settings', 'share/data_generic', 'share/open_ajax'], function(set
     }
   };
 
+  /**
+   * Make a Drupal Services request
+   * @param  {[type]} name    Callback name, like users.index.  Use services_tools (definition) module to get more info
+   * @param  {Object} params  Parameters, keyed by their name in the service. Use services_tools (definition) module to get more info
+   * @param  {Function} success success-callback
+   * @param  {Function} error   error-callback
+   */
   services.drupal = function(name, params, success, error){
     var i; // generic iterator
     var info = services.resources[name];
