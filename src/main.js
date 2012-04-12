@@ -7,7 +7,6 @@ require({
   'paths':{
     'modules': './modules/', // application code organized into modules belongs in here
     'share': './shared', // shared code for this target
-    'views': './shared/views',  // shared views for this target
     'config': './config'
   }
 },
@@ -17,12 +16,13 @@ require({
   'share/jquery',
   'share/os',
   'share/settings',
-
-  // for testing in console
-  'share/data_drupal',
   
   // load target modules here, no need to add them to your function callback, below.
-  'modules/home/home.js'
+  'modules/home/home.js',
+
+  // this is the data-tester endpoints, should be commented in relaease,
+  // so the user doesn't get errors for missing backends
+  'modules/data_tests/data_tests.js'
 ],
 
 function(state, $, os, settings){

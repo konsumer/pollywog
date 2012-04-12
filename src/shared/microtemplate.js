@@ -5,26 +5,7 @@
 // pollywog adds markdown, html cleaning & raw() (no cleaning) & error-handling & single-quote + newline support & localStorage caching
 define(['share/settings', 'share/util', 'share/showdown'], function(settings, util, showdown, md5){
   // get/set cache using localstorage
-  var cache;
-
-  if (!settings.app.cache){
-    delete window.localStorage['tplcache'];
-    cache = {};
-  }else{
-    cache = window.localStorage['tplcache'];
-    cache = (cache) ? JSON.parse(cache) : {};
-    for (var i in cache){
-      cache[i] = new Function('obj', cache[i] + '; return anonymous(obj);');
-    }
-    window.onunload = function(){
-      var c = {};
-      for (var i in cache){
-        c[i] = cache[i].toString();
-      }
-      window.localStorage['tplcache'] = JSON.stringify(c);
-    };
-  }
-
+  var cache = {};
 
   var tmpl = function(key, t, data){
     // Figure out if we're getting a template, or if we need to

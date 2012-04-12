@@ -10,7 +10,7 @@ define(['share/jquery'], function($){
 
   data.prototype.request = function(url, type, success, error, data){
     // re-arrange params, if data is really the success callback (like for GETs)
-    if (typeof(data=='function')){
+    if (typeof(data)=='function'){
       success=data;
       error=success;
       data=error;

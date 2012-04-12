@@ -63,9 +63,14 @@ Javascript:
        */
       open_ajax.subscribe('home.enter', function(m,o){
         $('title').text("Home");
-        data.drupal.user.index(function(users){
-          // first in array is you, rest are those you can get info about.
-          $("section").html(view('home/home.htm', v_home, {user:users[0]}));
+        data.setup(function(err){
+          if (!err){
+            data.drupal('user.index')(function(users){
+              $('section').html(view('home/home.htm', v_home, {user:users[0]}));
+            });
+          }else{
+            console.error(err);
+          }
         });
       });
     });
@@ -86,7 +91,6 @@ HTML
     <% }else{ %>
       <h1>Not logged in. Go <a href="/user/login">here</a> to fix that.</h1>
     <% } %>
-
 
 Go setup a REST service endpoint on [services page]. Make the path to endpoint "rest_api". Turn on "Session authentication". Under the [Resources] tab, make sure at least user.index is turned on. Put this awesome Pollywog app in the webroot of yer webserver, in a folder called "mobile". Now, go to [your fancy mobile app]. Sweet.
 

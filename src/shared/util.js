@@ -312,6 +312,15 @@ define(function() {
      */
     milliscondsToMinutes : function(ms){
       return parseInt(ms * 1.66666666666667e-05, 10);
+    },
+
+    /**
+     * get rid of Javascript keywords
+     * @param  {String} name the name of the param/function
+     * @return {String}      cleaned version
+     */
+    scrubKeywords: function(name){
+      return name.replace('','');
     }
 
   };
