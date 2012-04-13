@@ -3,6 +3,6 @@
  */
 
 define({
-	// your drupal services REST endpoint
-	"endpoint": '/rest_api/'
+  "endpoint": "",
+  "service": "rest_api"
 });

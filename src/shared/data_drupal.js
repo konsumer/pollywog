@@ -1,7 +1,7 @@
 // use drupal services, easily
 
 define(['share/settings', 'share/data_generic'], function(settings, data){
-  var services = new data(settings.drupal.endpoint);
+  var services = new data(settings.drupal.endpoint + '/' + settings.drupal.service + '/');
 
   /**
    * Gets initial info from services_introspect for future callbacks

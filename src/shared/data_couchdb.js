@@ -1,5 +1,11 @@
-define(['share/settings', 'share/data_generic'], function(settings, data){
-  var services = new data(settings.couchdb.endpoint);
+/**
+ * Wrapper around $.couch that allows success/error params, for readability
+ */
+define(['share/settings', 'share/order!share/jquery', 'share/order!share/jquery.couch'], function(settings, $){
+  $.couch.urlPrefix = settings.couchdb.endpoint;
+  var $db = $.couch.db(settings.couchdb.database);
+
+  var services={};
 
   /**
    * Fetch all the design docs with an index.html, options parameter expects an eachApp field which is a callback called on each app found.
@@ -7,7 +13,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.allApps = function(success, error){
-
+    return $db.allApps({"success":success, "error":error});
   };
 
   /**
@@ -16,7 +22,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.allDesignDocs = function(success, error){
-
+    return $db.allDesignDocs({"success":success, "error":error});
   };
 
   /**
@@ -25,7 +31,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.allDocs = function(success, error){
-
+    return $db.allDocs({"success":success, "error":error});
   };
 
   /**
@@ -35,6 +41,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.bulkRemove = function(docs, success, error){
+    return $db.bulkRemove(docs, {"success":success, "error":error});
 
   };
 
@@ -45,6 +52,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.bulkSave = function(docs, success, error){
+    return $db.bulkSave(docs, {"success":success, "error":error});
 
   };
 
@@ -54,6 +62,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.compact = function(success, error){
+    return $db.compact({"success":success, "error":error});
 
   };
 
@@ -62,9 +71,9 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} groupname [description]
    * @param  {[type]} success   [description]
    * @param  {[type]} error     [description]
-   * @return {[type]}           [description]
    */
   services.compactView = function(groupname, success, error){
+    return $db.compactView(groupname, {"success":success, "error":error});
 
   };
 
@@ -74,6 +83,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.create = function(success, error){
+    return $db.create({"success":success, "error":error});
 
   };
 
@@ -83,6 +93,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.drop = function(success, error){
+    return $db.drop({"success":success, "error":error});
 
   };
 
@@ -92,6 +103,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.getDbProperty = function(success, error){
+    return $db.getDbProperty({"success":success, "error":error});
 
   };
 
@@ -101,6 +113,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.info = function(success, error){
+    return $db.info({"success":success, "error":error});
 
   };
 
@@ -112,6 +125,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.list = function(list, view, success, error){
+    return $db.list(list, view, {"success":success, "error":error});
 
   };
 
@@ -122,6 +136,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.openDoc = function(docId, success, error){
+    return $db.openDoc(docId, {"success":success, "error":error});
 
   };
 
@@ -134,6 +149,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} language  [description]
    */
   services.query = function(mapFun, reduceFun, success, error, language){
+    return $db.query(mapFun, reduceFun, {"success":success, "error":error});
 
   };
 
@@ -144,6 +160,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.removeDoc = function(doc, success, error){
+    return $db.removeDoc(doc, {"success":success, "error":error});
 
   };
 
@@ -154,6 +171,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.saveDoc = function(doc, success, error){
+    return $db.saveDoc(doc, {"success":success, "error":error});
 
   };
 
@@ -165,6 +183,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param {[type]} error     [description]
    */
   services.setDbProperty = function(propName, propValue, success, error){
+    return $db.setDbProperty(propName, propValue, {"success":success, "error":error});
 
   };
 
@@ -175,6 +194,7 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.view = function(name, success, error){
+    return $db.view(name, {"success":success, "error":error});
 
   };
 
@@ -184,31 +204,11 @@ define(['share/settings', 'share/data_generic'], function(settings, data){
    * @param  {[type]} error   [description]
    */
   services.viewCleanup = function(success, error){
+    return $db.viewCleanup({"success":success, "error":error});
 
   };
   
-  /**
-   * API for subscribing to the changes feed
-   * var $changes = $.couch.db("mydatabase").changes();
-   * $changes.onChange = function (data) {
-   *   ... process data ...
-   * }
-   * $changes.stop();
-   */
-  services.changes = function(){
-      return {
-          /**
-           * Add a listener callback
-           * @param  {[type]} fun [description]
-           */
-          onChange : function(fun){},
-
-          /**
-           * Stop subscribing to the changes feed
-           */
-          stop: function(){}
-      };
-  };
+  services.changes = $db.changes;
 
   return services;
 });

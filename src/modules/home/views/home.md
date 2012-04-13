@@ -11,6 +11,9 @@
 [Resources]: http://127.0.0.1?q=/admin/structure/services/list/rest_api/resources
 [Services Tools]: http://drupal.org/project/services_tools
 [Services Introspect]: http://drupal.org/project/services_introspect
+[couchapp]: https://github.com/couchapp/couchapp
+[pollywog couchapp]: http://127.0.0.1:5984/app/_design/pollywog_couch/index.html
+[pollywog elasticsearch plugin]: http://localhost:9200/_plugin/pollywog/
 
 # teh pollywog saiz "o hai!"
 
@@ -75,11 +78,12 @@ Javascript:
           }
         });
       });
+      
     });
 
 Make your template (modules/home/views/home.htm) look like this:
 
-HTML
+HTML:
 
     <% if (user){ %>
       <h1>Oh hai <%= user.name %>! what’s up?</h1>
@@ -96,11 +100,11 @@ HTML
 
 Go setup a REST service endpoint on [services page]. Make the path to endpoint "rest_api" (change this in config/drupal.js.) Turn on "Session authentication". Under the [Resources] tab, make sure at least user.index is turned on. Put this awesome Pollywog app in the webroot of yer webserver, in a folder called "mobile". Now, go to [your fancy mobile app]. Sweet.
 
-The Drupl data-layer uses [Services Introspect] to get info about the installed services. You can use [Services Tools] project, which includes the Services Definition module to find out more about your services and get params, etc. 
+The Drupal data-layer uses [Services Introspect] to get info about the installed services. You can use [Services Tools] project, which includes the Services Definition module to find out more about your services and get params, etc. 
 
 
 ### Pollywog likes the Couches
-Yup, we do couchdb, direct (you can use pollywog in yer couchapp!)  You can modify modules/home/home.js to look like this:
+Yup, we do couchdb, direct (you can use pollywog in yer [couchapp]!)  You can modify modules/home/home.js to look like this:
 
 Javascript:
 
@@ -109,27 +113,30 @@ Javascript:
       "share/open_ajax",
       "share/microtemplate",
       "share/data_couchdb",
+      "share/spin",
       "share/text!./views/home.htm"
-    ], function($, open_ajax, view, data, v_home) {
+    ], function($, open_ajax, view, data, spinner, v_home) {
       
       /**
        * called when user visits #home
        * @param  {[type]} m original message
-       * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
+       * @param  {[type]} o options - includes params, and lots of other info about state & transition
        */
       open_ajax.subscribe("home.enter", function(m,o){
+        spinner.spin($("section").html("").get(0));
+        $("title").text("Couch Works!");
         data.info(function(i){
-          console.log("yer db!", i);
-          $("section").html(view(v_home, {"db_info": i}));
+          $("section").html(view("home/home.htm", v_home, {"db_info": i}));
         });
       });
+
     });
 
 Make your template (modules/home/views/home.htm) look like this:
 
-HTML
+HTML:
 
-    <% if (db_info): %>
+    <% if (db_info){ %>
       <h1>Oh hai! Yer DB is all Couch-ee</h1>
       <dl>
       <% for (d in db_info){ %>
@@ -138,10 +145,23 @@ HTML
       <% } %>
       </dl>
     <% }else{ %>
-      <h1>No couch to sit on! Is it running? See <a href="http://127.0.0.1:5984/_utils/">here</a>.</h1>
+      <h1>No couch to sit on! Is it running? See <a href="/_utils/">here</a>.</h1>
     <% } %>
 
-The API mimics [$.couch.db] but inserts success & error callbacks into options, to be more syntax-compatable with the other pollywog data-layers.  Make sure to customize config/couchdb.js to set your service endpoint.
+The API is a simple wrapper around [$.couch.db] but inserts success & error callbacks into options, to be more syntax-compatable with the other pollywog data-layers.  Make sure to customize config/couchdb.js to set your service endpoint up.
+
+To push it into your database, install [couchapp]. Now, create a new couchapp:
+
+    couchapp startapp YOURAPP
+
+Move the src folder (or webroot, if you have built the app) contents into _attachments/ and from YOURAPP folder, type this:
+
+    couchapp push http://127.0.0.1:5984/app
+
+Now, you can visit your very own [pollywog couchapp]!
+
+
+
 
 ### Getting all elastic-ee
 
@@ -149,53 +169,70 @@ Elasticsearch works pretty good all by itself (without indexing some other data 
 
 Javascript:
 
-    define([
-      "share/jquery",
-      "share/open_ajax",
-      "share/microtemplate",
-      "share/data_elastic",
-      "share/text!./views/home.tpl"
-    ], function($, open_ajax, view, data, t_home) {
-      
-      /**
-       * called when user visits #home
-       * @param  {[type]} m original message
-       * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
-       */
-      open_ajax.subscribe("home.enter", function(m,o){
-        var query = {
-          "query": {
-            "bool": {
-              "must": [
-                {
-                  "term": {
-                    "title": "pirate"
-                  }
-                },
-                {
-                  "term": {
-                    "type": "movie"
-                  }
-                }
-              ]
-            }
-          },
-          "from": 0,
-          "size": 10,
-          "sort": [],
-          "facets": {}
-        };
+    /**
+     * called when user visits #home
+     * @param  {[type]} m original message
+     * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
+     */
+    open_ajax.subscribe("home.enter", function(m,o){
+      spinner.spin($("section").html("").get(0));
+      $("title").text("Elastic Works!");
 
-        data.query(query, function(out){
-          console.log("ya got some!", out);
-          $("section").html(view(t_home, out));
-        });
-
+      var query = {
+        "query": {
+          "bool": {
+            "must": [{
+              "term": {
+                "Actors": "corey"
+              }
+            }],
+            "must_not": [],
+            "should": []
+          }
+        },
+        "from": 0,
+        "size": 50,
+        "sort": [],
+        "facets": {}
+      };
+      data.query(query, function(out){
+        console.log("ya got some!", out);
+        $("section").html(view('home/home.html', v_home, out.hits));
       });
+
     });
 
 
-The API is pretty simple, it includes query() & some REST functions to do other stuff. There will probly be a more fleshed out API, later on. Either way, you should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
+The API is pretty simple, it includes query() & save(). Also, you can use methods in shared/data_generic.js. There will probly be a more fleshed out API, later on. Either way, you should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
+
+
+Elasticsearch will run anything in the plugins/NAME/_site folder as a plugin, so lets copy the pollywog src folder (or webroot, if you have built the app) contents into ELASTICSEARCH-DIR/plugins/pollywog/_site/ and restart elasticsearch. Visit your awesome new [pollywog elasticsearch plugin]!
+
+This code will generate a little elasticsearch index filled with some movies:
+
+    open_ajax.subscribe("generate_elastic_index.enter", function(m,o){
+      data.create(function(){
+        ['labrynth', 'pirate', 'goonies', 'ghostbusters', 'princess+bride', 'lost+boys', 'top+gun', 'gone+with+wind','shawshank', 'metropolis', 'carrie', 'big+chill'].forEach(function(name){
+          $.get('http://www.imdbapi.com/?i=&t=' + name, function(movie){
+            movie = JSON.parse(movie);
+            var id = movie.ID;
+            delete movie.ID;
+            delete movie.Response;
+            movie.Genre = movie.Genre.split(', ');
+            movie.Writer = movie.Writer.split(', ');
+            movie.Actors = movie.Actors.split(', ');
+            movie.Director = movie.Director.split(', ');
+            data.save('movie/' + id, movie);
+            $("section").append(movie.Title + ' added.</br>');
+          });
+        });
+      });
+    });
+
+plop it into the home module, and visit [pollywog elasticsearch plugin]#generate_elastic_index now, go delete the code when it's done.
+
+The API provides query(), save(), create(), and the functions in data_generic (so you can get('movie/tt0089218') to get Goonies!)
+
 
 ## Show me your guts, little frog
 

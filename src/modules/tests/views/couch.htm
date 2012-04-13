@@ -1,4 +1,4 @@
-<% if (db_info): %>
+<% if (db_info){ %>
   <h1>Oh hai! Yer DB is all Couch-ee</h1>
   <dl>
   <% for (d in db_info){ %>
@@ -7,5 +7,5 @@
   <% } %>
   </dl>
 <% }else{ %>
-  <h1>No couch to sit on! Is it running? See <a href="http://127.0.0.1:5984/_utils/">here</a>.</h1>
+  <h1>No couch to sit on! Is it running? See <a href="/_utils/">here</a>.</h1>
 <% } %>

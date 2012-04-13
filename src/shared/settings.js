@@ -2,13 +2,15 @@
 define([
 	'config/app',
 	'config/drupal',
-	'config/couchdb'
-], function(cfg_app, cfg_drupal, cfg_couchdb) {
+	'config/couchdb',
+	'config/elastic'
+], function(cfg_app, cfg_drupal, cfg_couchdb, cfg_elastic) {
   settings = {};
 	
   settings.app = cfg_app;
   settings.drupal = cfg_drupal;
   settings.couchdb = cfg_couchdb;
+  settings.elastic = cfg_elastic;
 
   return settings;
 });
