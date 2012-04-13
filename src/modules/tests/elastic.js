@@ -9,18 +9,18 @@ define([
 
   open_ajax.subscribe("generate_elastic_index.enter", function(m,o){
     data.create(function(){
-      ['labrynth', 'pirate', 'goonies', 'ghostbusters', 'princess+bride', 'lost+boys', 'top+gun', 'gone+with+wind','shawshank', 'metropolis', 'carrie', 'big+chill'].forEach(function(name){
-        $.get('http://www.imdbapi.com/?i=&t=' + name, function(movie){
+      ["labrynth", "goonies", "ghostbusters", "princess+bride", "lost+boys", "top+gun", "gone+with+wind","shawshank", "metropolis", "carrie", "big+chill"].forEach(function(name){
+        $.get("http://www.imdbapi.com/?t=" + name, function(movie){
           movie = JSON.parse(movie);
           var id = movie.ID;
           delete movie.ID;
           delete movie.Response;
-          movie.Genre = movie.Genre.split(', ');
-          movie.Writer = movie.Writer.split(', ');
-          movie.Actors = movie.Actors.split(', ');
-          movie.Director = movie.Director.split(', ');
-          data.save('movie/' + id, movie);
-          $("section").append(movie.Title + ' added.</br>');
+          movie.Genre = movie.Genre.split(", ");
+          movie.Writer = movie.Writer.split(", ");
+          movie.Actors = movie.Actors.split(", ");
+          movie.Director = movie.Director.split(", ");
+          data.save("movie/" + id, movie);
+          $("section").append(movie.Title + " added.</br>");
         });
       });
     });
@@ -57,6 +57,6 @@ define([
       console.log("ya got some!", out);
       $("section").html(view('home/home.html', v_home, out.hits));
     });
-
   });
+  
 });

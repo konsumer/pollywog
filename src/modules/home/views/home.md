@@ -217,7 +217,7 @@ Make your template (modules/home/views/home.htm) look like this:
 HTML:
 
     <% for (h in hits){ %>
-      <img src="<%= hits[h]['_source'].Poster %>" />
+      <img src="<%= hits[h]["_source"].Poster %>" />
     <% } %>
 
 
@@ -225,18 +225,18 @@ This code will generate a little elasticsearch index filled with some movies:
 
     open_ajax.subscribe("generate_elastic_index.enter", function(m,o){
       data.create(function(){
-        ['labrynth', 'pirate', 'goonies', 'ghostbusters', 'princess+bride', 'lost+boys', 'top+gun', 'gone+with+wind','shawshank', 'metropolis', 'carrie', 'big+chill'].forEach(function(name){
-          $.get('http://www.imdbapi.com/?i=&t=' + name, function(movie){
+        ["labrynth", "goonies", "ghostbusters", "princess+bride", "lost+boys", "top+gun", "gone+with+wind","shawshank", "metropolis", "carrie", "big+chill"].forEach(function(name){
+          $.get("http://www.imdbapi.com/?t=" + name, function(movie){
             movie = JSON.parse(movie);
             var id = movie.ID;
             delete movie.ID;
             delete movie.Response;
-            movie.Genre = movie.Genre.split(', ');
-            movie.Writer = movie.Writer.split(', ');
-            movie.Actors = movie.Actors.split(', ');
-            movie.Director = movie.Director.split(', ');
-            data.save('movie/' + id, movie);
-            $("section").append(movie.Title + ' added.</br>');
+            movie.Genre = movie.Genre.split(", ");
+            movie.Writer = movie.Writer.split(", ");
+            movie.Actors = movie.Actors.split(", ");
+            movie.Director = movie.Director.split(", ");
+            data.save("movie/" + id, movie);
+            $("section").append(movie.Title + " added.</br>");
           });
         });
       });
@@ -244,7 +244,7 @@ This code will generate a little elasticsearch index filled with some movies:
 
 plop it into the home module, and [generate content] now, go delete the code when it's done.
 
-The API provides query(), save(), create(), and the functions in data_generic (so you can get('movie/tt0089218') to get Goonies!) You should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
+The API provides query(), save(), create(), and the functions in data_generic (so you can get("movie/tt0089218") to get Goonies!) You should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
 
 Elasticsearch will run anything in the plugins/NAME/_site folder as a plugin, so lets copy the pollywog src folder (or webroot, if you have built the app) contents into ELASTICSEARCH-DIR/plugins/pollywog/_site/ and restart elasticsearch. Visit your awesome new [pollywog elasticsearch plugin]!
 
