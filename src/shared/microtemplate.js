@@ -22,8 +22,8 @@ define(['share/settings', 'share/util', 'share/showdown'], function(settings, ut
           "var p=[],print=function(){p.push.apply(p,arguments);};" +
           "with(obj){p.push('" +
           str
-            // .replace(/'/g,'&#39;')
-            // .replace(/†/g, "&dagger;")
+            .replace(/'/g,'&#39;')
+            .replace(/†/g, "&dagger;")
             .replace(/[\r\n]/g, "†")
             .replace(/\t/g, "  ")
             .split("<%").join("\t")

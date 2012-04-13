@@ -14,6 +14,7 @@
 [couchapp]: https://github.com/couchapp/couchapp
 [pollywog couchapp]: http://127.0.0.1:5984/app/_design/pollywog_couch/index.html
 [pollywog elasticsearch plugin]: http://localhost:9200/_plugin/pollywog/
+[generate content]: http://localhost:9200/_plugin/pollywog/#generate_elastic_index
 
 # teh pollywog saiz "o hai!"
 
@@ -169,44 +170,56 @@ Elasticsearch works pretty good all by itself (without indexing some other data 
 
 Javascript:
 
-    /**
-     * called when user visits #home
-     * @param  {[type]} m original message
-     * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
-     */
-    open_ajax.subscribe("home.enter", function(m,o){
-      spinner.spin($("section").html("").get(0));
-      $("title").text("Elastic Works!");
+    define([
+      "share/jquery",
+      "share/open_ajax",
+      "share/microtemplate",
+      "share/data_elastic",
+      "share/spin",
+      "share/text!./views/home.htm"
+    ], function($, open_ajax, view, data, spinner, v_home) {
 
-      var query = {
-        "query": {
-          "bool": {
-            "must": [{
-              "term": {
-                "Actors": "corey"
-              }
-            }],
-            "must_not": [],
-            "should": []
-          }
-        },
-        "from": 0,
-        "size": 50,
-        "sort": [],
-        "facets": {}
-      };
-      data.query(query, function(out){
-        console.log("ya got some!", out);
-        $("section").html(view('home/home.html', v_home, out.hits));
+      /**
+       * called when user visits #home
+       * @param  {[type]} m original message
+       * @param  {[type]} o options - includes params, and lots of other info about state &amp; transition
+       */
+      open_ajax.subscribe("home.enter", function(m,o){
+        spinner.spin($("section").html("").get(0));
+        $("title").text("Elastic Works!");
+
+        var query = {
+          "query": {
+            "bool": {
+              "must": [{
+                "term": {
+                  "Actors": "corey"
+                }
+              }],
+              "must_not": [],
+              "should": []
+            }
+          },
+          "from": 0,
+          "size": 50,
+          "sort": [],
+          "facets": {}
+        };
+        data.query(query, function(out){
+          console.log("ya got some!", out);
+          $("section").html(view('home/home.html', v_home, out.hits));
+        });
       });
-
     });
 
+Make your template (modules/home/views/home.htm) look like this:
 
-The API is pretty simple, it includes query() & save(). Also, you can use methods in shared/data_generic.js. There will probly be a more fleshed out API, later on. Either way, you should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
+HTML:
 
+    <% for (h in hits){ %>
+      <img src="<%= hits[h]['_source'].Poster %>" />
+    <% } %>
 
-Elasticsearch will run anything in the plugins/NAME/_site folder as a plugin, so lets copy the pollywog src folder (or webroot, if you have built the app) contents into ELASTICSEARCH-DIR/plugins/pollywog/_site/ and restart elasticsearch. Visit your awesome new [pollywog elasticsearch plugin]!
 
 This code will generate a little elasticsearch index filled with some movies:
 
@@ -229,9 +242,11 @@ This code will generate a little elasticsearch index filled with some movies:
       });
     });
 
-plop it into the home module, and visit [pollywog elasticsearch plugin]#generate_elastic_index now, go delete the code when it's done.
+plop it into the home module, and [generate content] now, go delete the code when it's done.
 
-The API provides query(), save(), create(), and the functions in data_generic (so you can get('movie/tt0089218') to get Goonies!)
+The API provides query(), save(), create(), and the functions in data_generic (so you can get('movie/tt0089218') to get Goonies!) You should probly go read about [Elasticsearch]. Make sure to customize config/elastic.js to set your service endpoint.
+
+Elasticsearch will run anything in the plugins/NAME/_site folder as a plugin, so lets copy the pollywog src folder (or webroot, if you have built the app) contents into ELASTICSEARCH-DIR/plugins/pollywog/_site/ and restart elasticsearch. Visit your awesome new [pollywog elasticsearch plugin]!
 
 
 ## Show me your guts, little frog
