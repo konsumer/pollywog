@@ -72,7 +72,7 @@ Javascript:
           if (!err){
             // first user is you, others are those you have access to
             data.drupal("user.index", {"pagesize" : 1}, function(users){
-              $("section").html(view("home/home.htm", v_home, {"user" : users[0]}));
+              $("section").html(view(v_home, {"user" : users[0]}));
             });
           }else{
             console.error(err);
@@ -127,7 +127,7 @@ Javascript:
         spinner.spin($("section").html("").get(0));
         $("title").text("Couch Works!");
         data.info(function(i){
-          $("section").html(view("home/home.htm", v_home, {"db_info": i}));
+          $("section").html(v_home, {"db_info": i}));
         });
       });
 
@@ -207,7 +207,7 @@ Javascript:
         };
         data.query(query, function(out){
           console.log("ya got some!", out);
-          $("section").html(view('home/home.html', v_home, out.hits));
+          $("section").html(view(v_home, out.hits));
         });
       });
     });
