@@ -16,7 +16,7 @@ define([
    */
   open_ajax.subscribe('home.enter', function(m,o){
     $('title').text("Home");
-    $('section').html(view('home/home.md', v_home));
+    $('section').html(view(v_home, false, true));
     highlight();
   });
 
